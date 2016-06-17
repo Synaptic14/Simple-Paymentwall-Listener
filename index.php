@@ -14,6 +14,7 @@
 
   <body>
 <?php 
+//Fix deprecation
   odbc_exec($mssql, 'USE [ACCOUNT_DBF]');
   $idquery = odbc_exec($mssql, "SELECT uid FROM [ACCOUNT_TBL_DETAIL] WHERE [account] = '$user'");
   $result = odbc_result($idquery, 'uid');

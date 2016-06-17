@@ -3,12 +3,15 @@ error_reporting(E_ALL & ~E_NOTICE);
     define('MSSQL_DSN', '');
     define('MSSQL_USER', '');
     define('MSSQL_PASS', '');
+    // Fix deprecated mssql connection construct
     $mssql = odbc_connect('Driver={SQL Server};Server='.MSSQL_DSN.';', MSSQL_USER, MSSQL_PASS);
     odbc_exec($mssql, 'USE [WEBSITE_DBF]');
 define('SECRET', ''); // secret key of application
 define('IP_WHITELIST_CHECK_ACTIVE', true);
 
 define('CHARGEBACK', 2);
+
+//Make sure whitelist is the same
 
 $ipsWhitelist = array(
     '174.36.92.186',
@@ -91,7 +94,7 @@ if ($result) {
     echo implode(' ', $errors);
 }
 
-
+//Fix deprecation
 //Give Points
 odbc_exec($mssql, 'USE [ACCOUNT_DBF]');
 $q1 = "SELECT * FROM [dbo].[ACCOUNT_TBL] WHERE uid = ".$userId;
