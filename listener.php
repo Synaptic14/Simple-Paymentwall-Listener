@@ -1,18 +1,7 @@
 <?php
 error_reporting(E_ALL & ~E_NOTICE);
-    define('MSSQL_DSN', '');
-    define('MSSQL_USER', '');
-    define('MSSQL_PASS', '');
-    // Fix deprecated mssql connection construct
-    $mssql = odbc_connect('Driver={SQL Server};Server='.MSSQL_DSN.';', MSSQL_USER, MSSQL_PASS);
-    odbc_exec($mssql, 'USE [WEBSITE_DBF]');
-define('SECRET', ''); // secret key of application
-define('IP_WHITELIST_CHECK_ACTIVE', true);
 
-define('CHARGEBACK', 2);
-
-//Make sure whitelist is the same
-
+//Confirm this is still correct.
 $ipsWhitelist = array(
     '174.36.92.186',
     '174.36.96.66',
@@ -85,10 +74,11 @@ if ($type == 2) {
     $cb = 0;
 }
 $date = date("Y-m-d");
-$query = "INSERT INTO [dbo].[web_paymentwall] (dp, type, ref, date, uid, cb, reason) VALUES (".$credits.", ".$type.", '".$refId."', ".$date.", ".$userId.", ".$cb.", ".$reason.")";
-$result = odbc_exec($mssql, $query);
+$query = "INSERT INTO [dbo].[web_paymentwall] (dp, type, ref, date, uid, cb, reason) VALUES (?, ?, ?, ?, ?, ?, ?)";
+$q_vars = array($credits, $type, $refId, $date, $userId, $cb, $reason);
+$stmt = $pdo->prepare($query);
 
-if ($result) {
+if ($stmt->execute($q_vars);) {
     echo 'OK';
 } else {
     echo implode(' ', $errors);
@@ -96,15 +86,24 @@ if ($result) {
 
 //Fix deprecation
 //Give Points
-odbc_exec($mssql, 'USE [ACCOUNT_DBF]');
-$q1 = "SELECT * FROM [dbo].[ACCOUNT_TBL] WHERE uid = ".$userId;
 $result1 = odbc_exec($mssql, $q1);
 $data1 = odbc_result($result1, 'donate');
 
 $new_data = $data1 + $credits;
 
-$q2 = "UPDATE [dbo].[ACCOUNT_TBL] SET donate = ".$new_data." WHERE uid = ".$userId;
 $result2 = odbc_exec($mssql, $q2);
+
+
+$point_query1 = "SELECT donate FROM [dbo].[ACCOUNT_TBL] WHERE uid = ?";
+$p_vars1 = array($userId);
+$pstmt1 = $pdo->prepare($point_query1);
+$pstmt1->execute($p_vars1);
+$result = $pstmt1->fetch();
+
+$point_query2 = "UPDATE [dbo].[ACCOUNT_TBL] SET donate = ? WHERE uid = ?";
+$p_vars2 = array($new_data, $userId);
+
+$pstmt2 = $pdo->prepare($point_query2);
 
 
 

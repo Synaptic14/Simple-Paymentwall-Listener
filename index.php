@@ -7,18 +7,17 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Synapse's Payment Gateway</title>
+    <title>Paymentwall </title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
   </head>
 
   <body>
 <?php 
-//Fix deprecation
-  odbc_exec($mssql, 'USE [ACCOUNT_DBF]');
-  $idquery = odbc_exec($mssql, "SELECT uid FROM [ACCOUNT_TBL_DETAIL] WHERE [account] = '$user'");
-  $result = odbc_result($idquery, 'uid');
-  $id = $result;
+  $stmt = $pdo->prepare("SELECT uid FROM [ACCOUNT_TBL_DETAIL] WHERE [account] = ?");
+  $stmt->execute(array($user));
+  $result = $stmt->fetch();
+  $id = $result['uid'];
 ?>
     <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
       <div class="container">
@@ -41,7 +40,7 @@
 
     <div class="container">
       <div class="starter-template">
-        <h1>Synapse's Donation Center</h1>
+        <h1>Paymentwall Portal</h1>
 		<?php 
 			if($id == "") {
 				echo "Please <a href='../'>Login</a> to view this page.";
