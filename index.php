@@ -7,17 +7,18 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Paymentwall </title>
+    <title>Paymentwall Portal</title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
   </head>
 
   <body>
 <?php 
-  $stmt = $pdo->prepare("SELECT uid FROM [ACCOUNT_TBL_DETAIL] WHERE [account] = ?");
-  $stmt->execute(array($user));
-  $result = $stmt->fetch();
-  $id = $result['uid'];
+  $DB = new DBConnection();
+  $DB->query('SELECT uid FROM users WHERE username = :user');
+  $DB->bind(':user', $user);
+  $row = $DB->single();
+  $id = $row['uid'];
 ?>
     <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
       <div class="container">
@@ -59,7 +60,6 @@
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
   </body>

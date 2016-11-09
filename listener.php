@@ -1,6 +1,8 @@
 <?php
 error_reporting(E_ALL & ~E_NOTICE);
 
+include 'config.inc.php';
+
 //Confirm this is still correct.
 $ipsWhitelist = array(
     '174.36.92.186',
@@ -17,6 +19,26 @@ $refId = isset($_GET['ref']) ? $_GET['ref'] : null;
 $signature = isset($_GET['sig']) ? $_GET['sig'] : null;
 $sign_version = isset($_GET['sign_version']) ? $_GET['sign_version'] : null;
 $reason = isset($_GET['reason']) ? $_GET['reason'] : null;
+
+
+function givePoints()
+{
+    $getPoints = new DBConnection();
+    $getPoints->query("SELECT dPoints FROM users WHERE uid = :uid");
+    $getPoints->bind(':uid', $userId);
+    $row = $getPoints->single();
+
+    $currentDPoints = $row['dPoints'];
+
+    $newDPoints = $current_dpoints + $credits;
+
+    $upatePoints = new DBConnection();
+    $updatePoints->query("UPDATE users SET dPoints = :newDP WHERE uid = :uid");
+    $updatePoints->bind(':newDP', $newDPoints);
+    $updatePoints->bind(':uid', $userId);
+    $updatePoints->execute();
+}
+
 
 $result = false;
 
@@ -73,37 +95,9 @@ if ($type == 2) {
 } elseif($type < 2) {
     $cb = 0;
 }
-$date = date("Y-m-d");
-$query = "INSERT INTO [dbo].[web_paymentwall] (dp, type, ref, date, uid, cb, reason) VALUES (?, ?, ?, ?, ?, ?, ?)";
-$q_vars = array($credits, $type, $refId, $date, $userId, $cb, $reason);
-$stmt = $pdo->prepare($query);
 
-if ($stmt->execute($q_vars);) {
-    echo 'OK';
-} else {
-    echo implode(' ', $errors);
-}
-
-//Fix deprecation
 //Give Points
-$result1 = odbc_exec($mssql, $q1);
-$data1 = odbc_result($result1, 'donate');
-
-$new_data = $data1 + $credits;
-
-$result2 = odbc_exec($mssql, $q2);
-
-
-$point_query1 = "SELECT donate FROM [dbo].[ACCOUNT_TBL] WHERE uid = ?";
-$p_vars1 = array($userId);
-$pstmt1 = $pdo->prepare($point_query1);
-$pstmt1->execute($p_vars1);
-$result = $pstmt1->fetch();
-
-$point_query2 = "UPDATE [dbo].[ACCOUNT_TBL] SET donate = ? WHERE uid = ?";
-$p_vars2 = array($new_data, $userId);
-
-$pstmt2 = $pdo->prepare($point_query2);
+givePoints();
 
 
 

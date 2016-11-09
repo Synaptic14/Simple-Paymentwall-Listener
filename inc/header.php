@@ -4,6 +4,7 @@
 	include('inc/config.inc.php');
 	if(isset($_SESSION['user'])) {
 		$loggedin = 1;
+		$user = $_SESSION['user'];
 	 } else {
 		$loggedin = 0;
 	}
